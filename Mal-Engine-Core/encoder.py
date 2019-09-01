@@ -46,8 +46,7 @@ libraries = [ "libssp-0", "kernel32", "user32", "advapi32", "oleaut32", "shell32
             "libeay32", "cxlibraryd11.bpl", "vcl120.bpl", "gr32_d6.bpl", "cxlibraryrs16.bpl", "cxgridrs16.bpl", "vcl40.bpl", 
             "opengl32", "qt5core", "qtcore4", "wdfldr.sys", "nesting.bpl", "fltmgr.sys"]
 
-# return a list of names of all the features being extracted
-# by this encoding algorithm
+# return nama dari semua fitur yang diekstrak
 def attribute_names():
     global properties, libraries
     return properties + \
@@ -56,7 +55,7 @@ def attribute_names():
            ["import(%s)" % l for l in libraries] + \
            ["vsize_ratio", "code_sections_ratio", "pec_sections_ratio", "sections_avg_entropy", "sections_vsize_avg_ratio"]
 
-# encode a few boolean properties as 1.0 (true) or 0.0 (false)
+# encode properties menjadi angka boolean
 def encode_properties(pe):
     global properties
     props = np.array([0.0] * len(properties))
@@ -64,7 +63,8 @@ def encode_properties(pe):
         props[idx] = 1.0 if getattr(pe, prop) else 0.0
     return props
 
-# encode the first 64 bytes of the entrypoint by normalizing to [0.0,1.0]
+# encode 64bytes pertama didalam section entrypoint dan menormalisasikannya menjadi nilai 0,0 - 1,0 
+def encode_entrypoint(ep):
 def encode_entrypoint(ep):
     # pad
     while len(ep) < 64:
@@ -77,8 +77,8 @@ def encode_histogram(raw):
     histo = histo / histo.sum() # normalize
     return histo
 
-# encode the API being imported from specific libraries, for each API
-# the relative library counter will be incremented
+# encode API yang di import didalam library yang telah di list diatas
+# tiap API yang diimport akan di increment
 def encode_libraries(pe):
     global libraries
 
@@ -97,7 +97,7 @@ def encode_libraries(pe):
     tot = libs.sum()
     return ( libs / tot ) if tot > 0 else libs # normalize
 
-# encode a few simple attributes of the PE sections
+# encode beberapa attributes didalam PE sections 
 def encode_sections(pe):
     sections = [{ \
         'characteristics': ','.join(map(str, s.characteristics_lists)),
@@ -123,7 +123,7 @@ def encode_sections(pe):
         ((sum([s['size'] / s['vsize'] for s in sections]) / num_sections) / norm_size) if norm_size > 0 else 0.0,
     ]
 
-# encode a PE file into a vector of scalars
+# encode a PE file menjadi vector scalar
 def encode_pe(filepath):
     log.debug("encoding %s ...", filepath)
 
@@ -143,7 +143,7 @@ def encode_pe(filepath):
     except Exception as e:
         log.warning("can't get entrypoint bytes from %s: %s", filepath, e)
 
-    v = np.concatenate([ \
+    encode_returnAll = np.concatenate([ \
         encode_properties(pe),
         encode_entrypoint(ep_bytes),
         encode_histogram(raw),
@@ -152,4 +152,4 @@ def encode_pe(filepath):
         encode_sections(pe)
     ])
 
-    return v
+    return encode_returnAll
