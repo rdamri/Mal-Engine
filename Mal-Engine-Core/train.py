@@ -3,7 +3,7 @@ import logging as log
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
-# define training strategy
+# model trainingnya
 def train_model(model, dataset):
     log.info("training model (train on %d samples, validate on %d) ..." % ( \
             len(dataset.Y_train), 
@@ -19,9 +19,9 @@ def train_model(model, dataset):
     os.makedirs(checkpath, exist_ok=True)
     checkpath = os.path.join(checkpath, 'model-epoch{epoch:03d}-acc{val_acc:03f}.h5')
 
-    # this will stop the training when the validation accuracy will stop changing
+    # buat berentiin proses trainin kalo val_acc ya ga ada perubahan
     stopper = EarlyStopping(monitor = 'val_acc', min_delta=0.0001, patience = 5, mode = 'auto')
-    # this will take snapshots of the best performing epoch
+    # buat men-generate hasil training
     saver = ModelCheckpoint(checkpath, save_best_only=True, verbose=1, monitor='val_loss', mode='min')
     # start training
     return model.fit( dataset.X_train, dataset.Y_train,
