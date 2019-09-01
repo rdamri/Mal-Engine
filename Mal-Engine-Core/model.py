@@ -5,7 +5,6 @@ from keras.layers import Dense, Dropout
 
 # train model
 def build_model(is_train):  
-
     n_inputs = 486
     log.info("building model for %s ..." % 'training' if is_train else 'evaluation')
     if is_train:
