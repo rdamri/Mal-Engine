@@ -1,2 +1,11 @@
+tensorflow
+keras
+pandas
+sklearn
+pydot
+matplotlib
+flask
+terminaltables
+seaborn
 ergo-ai
 lief
